@@ -1,5 +1,5 @@
 import "dotenv/config";
-import { Client, GatewayIntentBits, Events } from "discord.js";
+import { Client, GatewayIntentBits, Events, EmbedBuilder } from "discord.js";
 import { TitanicTracker } from "./tracker.js";
 import * as hatchrate from "./commands/hatchrate.js";
 import * as titanics from "./commands/titanics.js";
