@@ -27,7 +27,6 @@ client.once(Events.ClientReady, async (c) => {
   await tracker.init();
   console.log(`Tracking ${tracker.titanicNames.size} Titanic pets.`);
 
-  // Poll immediately, then on the configured interval.
   await pollOnce();
   setInterval(pollOnce, POLL_INTERVAL_MINUTES * 60_000);
 
@@ -47,7 +46,12 @@ async function pollOnce() {
 function scheduleHourlyAnnounce() {
   const msUntilNextHour = 3_600_000 - (Date.now() % 3_600_000);
   setTimeout(() => {
- async function announceHatchRate() {
+    announceHatchRate();
+    setInterval(announceHatchRate, 3_600_000);
+  }, msUntilNextHour);
+}
+
+async function announceHatchRate() {
   try {
     const channel = await client.channels.fetch(ANNOUNCE_CHANNEL_ID);
     const rate = tracker.getRate(60);
@@ -66,7 +70,9 @@ function scheduleHourlyAnnounce() {
     const embed = new EmbedBuilder()
       .setTitle("⏰ Hourly Titanic Hatch Rate — Pet Simulator 99")
       .setColor(0xf1c40f)
-      .setDescription(`**~${rate.perHour.toFixed(1)} Titanics/hour** globally (last ${rate.windowMinutesActual.toFixed(0)} min)`)
+      .setDescription(
+        `**~${rate.perHour.toFixed(1)} Titanics/hour** globally (last ${rate.windowMinutesActual.toFixed(0)} min)`
+      )
       .addFields(
         topPets.length > 0
           ? topPets.map(([name, perHour]) => ({
