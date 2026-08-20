@@ -2,7 +2,7 @@ import { SlashCommandBuilder, EmbedBuilder } from "discord.js";
 
 export const data = new SlashCommandBuilder()
   .setName("titanics")
-  .setDescription("List all current Titanic pets and how many exist in-game right now");
+  .setDescription("List the top Titanic pets and how many exist in-game right now");
 
 export async function execute(interaction, tracker) {
   await interaction.deferReply();
@@ -20,11 +20,20 @@ export async function execute(interaction, tracker) {
     return;
   }
 
+  const TOP_N = 25;
+  const shown = rows.slice(0, TOP_N);
+  const remaining = rows.length - shown.length;
+
   const embed = new EmbedBuilder()
-    .setTitle("Titanic Pets — Current Totals")
+    .setTitle(`Titanic Pets — Top ${shown.length} by Current Count`)
     .setColor(0xf1c40f)
-    .setDescription(rows.map(([name, count]) => `**${name}** — ${count.toLocaleString()} exist`).join("\n"))
-    .setFooter({ text: "Totals from BIG Games' public API (/api/exists)." })
+    .setDescription(shown.map(([name, count]) => `**${name}** — ${count.toLocaleString()} exist`).join("\n"))
+    .setFooter({
+      text:
+        remaining > 0
+          ? `Totals from BIG Games' public API. +${remaining} more tracked Titanic pets not shown.`
+          : "Totals from BIG Games' public API (/api/exists).",
+    })
     .setTimestamp(latest.timestamp);
 
   await interaction.editReply({ embeds: [embed] });
